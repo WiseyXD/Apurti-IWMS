@@ -1,6 +1,7 @@
 // app/qr/actions.ts
 "use server";
 
+import { signIn } from "@/auth";
 interface ScanData {
   code: string;
   timestamp: string;
@@ -21,4 +22,8 @@ export async function saveScan(scanData: ScanData): Promise<void> {
     console.error("Error saving scan:", error);
     throw new Error("Failed to process scan");
   }
+}
+
+export async function handleGoogleSignIn(redirectPath: string) {
+  await signIn("google", { redirectTo: redirectPath });
 }
