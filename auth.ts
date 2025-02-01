@@ -3,7 +3,7 @@ import NextAuth from "next-auth";
 import type { GetServerSidePropsContext } from "next/types";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
-import { prisma } from "./lib/prisma";
+import { prisma } from "./lib/db";
 
 export const {
   handlers,
@@ -19,6 +19,9 @@ export const {
   ) => Promise<any>;
   signOut: () => Promise<any>;
 } = NextAuth({
+  session: {
+    strategy: "jwt",
+  },
   adapter: PrismaAdapter(prisma),
   ...authConfig,
 });

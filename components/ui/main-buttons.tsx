@@ -1,21 +1,20 @@
-import { ArrowRight } from 'lucide-react'
-import React from 'react'
-import { Button } from './button'
+import { ArrowRight } from "lucide-react";
+import React from "react";
+import { Button } from "./button";
+import Link from "next/link";
 
 export default function Mainbuttons() {
   return (
     <>
-      <a href="https://nextjs-dashboard-three-pi-27.vercel.app/dashboard" className="" target="_blank">
+      <Link href="/login">
         <Button
           variant="outline"
-          className="text-black flex gap-x-3 md:px-8 md:py-4 md:text-lg rounded-full group" // Added group class for hover
+          className="text-black flex gap-x-3 md:px-8 md:py-4 md:text-lg rounded-full group"
         >
           Get Started
-          <ArrowRight className="transition-transform duration-300 ease-in-out group-hover:translate-x-1" /> {/* Arrow moves on hover */}
+          <ArrowRight className="transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
         </Button>
-
-      </a>
+      </Link>
     </>
-  )
+  );
 }
-

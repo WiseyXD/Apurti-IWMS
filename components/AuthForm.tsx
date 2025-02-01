@@ -65,18 +65,20 @@ export default function AuthForm({
   return (
     <main className="min-h-screen w-full bg-gradient-to-b from-[#f8fafc] to-white">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-0 w-full h-full bg-[#2563eb]/5 blur-3xl scale-y-50 transform" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[#0891b2]/5 blur-3xl scale-y-50 transform" />
       </div>
 
       <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
         {/* Logo & Header */}
         <div className="w-full max-w-md mb-8 text-center">
-          <h1 className="text-[#2563eb] text-4xl font-bold mb-3">infloq</h1>
-          <p className="text-[#1e293b]/80 text-lg">Partner. Connect. Grow.</p>
+          <h1 className="text-[#0891b2] text-4xl font-bold mb-3">Apurti</h1>
+          <p className="text-[#1e293b]/80 text-lg">
+            Intelligent Warehouse Management
+          </p>
         </div>
 
         {/* Main Card */}
-        <Card className="w-full max-w-md bg-white/70 backdrop-blur-lg shadow-xl border-[#6366f1]/10">
+        <Card className="w-full max-w-md bg-white/70 backdrop-blur-lg shadow-xl border-[#0891b2]/10">
           <CardHeader className="space-y-2 text-center">
             <CardTitle className="text-[#1e293b] text-2xl">{title}</CardTitle>
             <CardDescription className="text-[#1e293b]/60 text-base">
@@ -90,7 +92,7 @@ export default function AuthForm({
               <form action={handleGoogleSubmit}>
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-[#2563eb] hover:bg-[#2563eb]/90 text-white flex items-center justify-center gap-3 text-base font-medium"
+                  className="w-full h-12 bg-[#0891b2] hover:bg-[#0891b2]/90 text-white flex items-center justify-center gap-3 text-base font-medium"
                   disabled={googleLoading}
                 >
                   {googleLoading ? (
@@ -148,7 +150,7 @@ export default function AuthForm({
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-[#6366f1]/10" />
+                  <span className="w-full border-t border-[#0891b2]/10" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-white px-2 text-[#1e293b]/60">
@@ -160,32 +162,34 @@ export default function AuthForm({
               {/* Benefits */}
               <div className="py-6 space-y-3">
                 <div className="flex items-center gap-3 text-[#1e293b]/80">
-                  <CheckCircle2 className="w-5 h-5 text-[#0ea5e9]" />
-                  <span>Access to 50K+ verified creators</span>
+                  <CheckCircle2 className="w-5 h-5 text-[#0891b2]" />
+                  <span>Real-time inventory tracking & analytics</span>
                 </div>
                 <div className="flex items-center gap-3 text-[#1e293b]/80">
-                  <CheckCircle2 className="w-5 h-5 text-[#0ea5e9]" />
-                  <span>Campaign performance analytics</span>
+                  <CheckCircle2 className="w-5 h-5 text-[#0891b2]" />
+                  <span>Automated warehouse optimization</span>
                 </div>
                 <div className="flex items-center gap-3 text-[#1e293b]/80">
-                  <CheckCircle2 className="w-5 h-5 text-[#0ea5e9]" />
-                  <span>Streamlined creator collaboration</span>
+                  <CheckCircle2 className="w-5 h-5 text-[#0891b2]" />
+                  <span>Seamless integration with existing systems</span>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 py-6 border-y border-[#6366f1]/10">
+              <div className="grid grid-cols-3 gap-4 py-6 border-y border-[#0891b2]/10">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#2563eb]">50K+</div>
-                  <div className="text-sm text-[#1e293b]/60">Creators</div>
+                  <div className="text-2xl font-bold text-[#0891b2]">99.9%</div>
+                  <div className="text-sm text-[#1e293b]/60">Accuracy</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#0ea5e9]">5M+</div>
-                  <div className="text-sm text-[#1e293b]/60">Reach</div>
+                  <div className="text-2xl font-bold text-[#0891b2]">50%</div>
+                  <div className="text-sm text-[#1e293b]/60">
+                    Cost Reduction
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#6366f1]">20+</div>
-                  <div className="text-sm text-[#1e293b]/60">Industries</div>
+                  <div className="text-2xl font-bold text-[#0891b2]">24/7</div>
+                  <div className="text-sm text-[#1e293b]/60">Support</div>
                 </div>
               </div>
 
@@ -194,7 +198,7 @@ export default function AuthForm({
                 <div className="text-center">
                   <Button
                     variant="link"
-                    className="text-[#2563eb] hover:text-[#2563eb]/80"
+                    className="text-[#0891b2] hover:text-[#0891b2]/80"
                     onClick={() =>
                       (window.location.href = alternateAuthLink.href)
                     }
@@ -215,7 +219,7 @@ export default function AuthForm({
 
         <div className="mt-6 px-6 py-3 bg-[#22c55e]/10 rounded-full">
           <span className="text-[#22c55e] font-medium">
-            Average campaign ROI: 300%+
+            Trusted by 500+ warehouses worldwide
           </span>
         </div>
       </div>

@@ -1,9 +1,7 @@
-function saveScanToDatabase(scanData: any) {
-  // Save scan data to database
-  console.log("Saving scan data to database:", scanData);
+import { PrismaClient } from "@prisma/client";
 
-  // Simulate a delay
-  setTimeout(() => {
-    console.log("Scan data saved successfully");
-  }, 1000);
-}
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+export const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
