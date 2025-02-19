@@ -1,8 +1,6 @@
 "use client";
-
-import Mainbuttons from "./ui/main-buttons";
-import { TypewriterEffectSmooth } from "./ui/typewriter";
-
+import { TypewriterEffectSmooth } from "../ui/typewriter";
+import Mainbuttons from "../ui/main-buttons";
 export default function TypewriterEffectSmoothDemo() {
   const words = [
     {

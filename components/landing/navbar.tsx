@@ -3,20 +3,20 @@ import { cn } from "@/lib/utils";
 import { BookOpen, MenuIcon } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+import { Dialog, DialogClose } from "../ui/dialog";
+import { Button } from "../ui/button";
 import {
   NavigationMenu,
   NavigationMenuLink,
   NavigationMenuList,
-} from "./ui/navigation-menu";
+} from "../ui/navigation-menu";
 import {
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "./ui/sheet";
-import { Dialog, DialogClose } from "./ui/dialog";
-import { Button } from "./ui/button";
+} from "../ui/sheet";
 
 export function NavBar() {
   return (

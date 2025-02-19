@@ -1,6 +1,6 @@
 // app/qr/page.tsx
 import { saveScan } from "@/actions";
-import { QRScannerComponent } from "@/components/qr-scanner";
+import { QRScannerComponent } from "@/components/qr/qr-scanner";
 
 export default function ScanPage() {
   return (

@@ -1,11 +1,9 @@
 "use client";
 import React from "react";
 import { Cover } from "@/components/ui/cover";
-import Image from "next/image";
-import ProductHunt from "../public/featured.svg";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { motion } from "framer-motion";
-import Mainbuttons from "./ui/main-buttons";
+import Mainbuttons from "../ui/main-buttons";
 
 export default function Hero() {
   return (

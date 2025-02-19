@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { InfiniteMovingCards } from "./ui/moving-cards";
+import { InfiniteMovingCards } from "../ui/moving-cards";
 
 export function InfiniteMovingCardsDemo() {
   return (

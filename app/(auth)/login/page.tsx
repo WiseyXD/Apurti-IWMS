@@ -1,6 +1,6 @@
 "use client";
 
-import AuthForm from "@/components/AuthForm";
+import AuthForm from "@/components/auth/AuthForm";
 import { handleGoogleSignIn } from "@/actions";
 import { AuthSearchParams } from "@/lib/types";
 
@@ -12,12 +12,12 @@ export default function LoginPage({ searchParams }: PageProps) {
   return (
     <AuthForm
       mode="login"
-      title="Sign in to Influencer Portal"
-      description="Maximize your influence and revenue potential"
+      title="Sign in to Apurti"
+      description="Maximize your warehouse efficiency with Apurti"
       handleGoogleAuth={handleGoogleSignIn}
       searchParams={searchParams}
       alternateAuthLink={{
-        text: "New to Infloq? Create an influencer account",
+        text: "New to Apurti? Create an account",
         href: "/signup",
       }}
     />
