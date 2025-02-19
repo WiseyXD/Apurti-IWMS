@@ -2,6 +2,7 @@
 "use client";
 
 import { Box } from "lucide-react";
+import Image from "next/image";
 
 export function DashboardHeader({ userEmail }: { userEmail: string }) {
   return (
@@ -15,7 +16,7 @@ export function DashboardHeader({ userEmail }: { userEmail: string }) {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-slate-600">
-            <img
+            <Image
               src="https://github.com/shadcn.png"
               alt="avatar"
               className="w-8 h-8 rounded-full bg-slate-100"

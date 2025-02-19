@@ -76,7 +76,6 @@ export default async function DashboardPage() {
               description={stat.description}
               icon={stat.icon}
               iconBgColor={stat.iconBgColor}
-              iconColor={stat.iconColor}
             />
           ))}
         </div>

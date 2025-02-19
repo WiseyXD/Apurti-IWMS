@@ -12,7 +12,6 @@ interface StatsCardProps {
   description?: string;
   icon: React.ReactNode;
   iconBgColor: string;
-  iconColor: string;
 }
 
 export function StatsCard({
@@ -22,7 +21,6 @@ export function StatsCard({
   description,
   icon,
   iconBgColor,
-  iconColor,
 }: StatsCardProps) {
   return (
     <Card className="bg-white hover:shadow-lg transition-shadow">

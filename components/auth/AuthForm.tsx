@@ -51,6 +51,7 @@ export default function AuthForm({
     try {
       await handleGoogleAuth(redirectPath);
     } catch (err) {
+      console.log(err);
       setError("Failed to authenticate with Google. Please try again.");
       setGoogleLoading(false);
     }

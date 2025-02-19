@@ -41,7 +41,7 @@ export function QRScannerComponent({ onScanComplete }: QRScannerProps) {
         setPermissionStatus(result.state);
       });
     } catch (err) {
-      console.log("Permission check not supported");
+      console.log("Permission check not supported", err);
     }
   };
 
