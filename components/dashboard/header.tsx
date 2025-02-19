@@ -19,6 +19,8 @@ export function DashboardHeader({ userEmail }: { userEmail: string }) {
             <Image
               src="https://github.com/shadcn.png"
               alt="avatar"
+              width={10}
+              height={10}
               className="w-8 h-8 rounded-full bg-slate-100"
             />
             <span>{userEmail}</span>

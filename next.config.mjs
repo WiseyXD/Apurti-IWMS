@@ -6,6 +6,7 @@ const nextConfig = {
       "ui.aceternity.com",
       "images.unsplash.com",
       "assets.aceternity.com",
+      "github.com",
     ], // Add any other domains as needed
   },
   webpack: (config) => {
