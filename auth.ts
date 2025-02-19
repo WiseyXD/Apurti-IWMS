@@ -20,7 +20,7 @@ export const {
   signOut: () => Promise<any>;
 } = NextAuth({
   session: {
-    strategy: "jwt",
+    strategy: "database",
   },
   adapter: PrismaAdapter(prisma),
   ...authConfig,
