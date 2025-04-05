@@ -9,6 +9,8 @@ interface PageProps {
 }
 
 export default function LoginPage({ searchParams }: PageProps) {
+  console.log(searchParams);
+  const aryan = "12213";
   return (
     <AuthForm
       mode="login"

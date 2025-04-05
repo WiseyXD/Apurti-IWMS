@@ -13,6 +13,7 @@ const nextConfig = {
     config.resolve.fallback = { fs: false };
     return config;
   },
+  transpilePackages: ['three'],
 };
 
 export default nextConfig;
