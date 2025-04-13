@@ -16,6 +16,7 @@ export default function Hero() {
           duration: 0.8,
           ease: "easeInOut",
         }}
+        // @ts-expect-error - TS(2339): Property 'initial' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<...>'.
         className="relative flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 px-4" // Full width and height
       >
         <div className="flex flex-col items-center justify-center w-full space-y-6 max-w-5xl mx-auto">

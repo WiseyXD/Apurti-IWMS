@@ -1,14 +1,16 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import AuthForm from "@/components/auth/AuthForm";
 import { handleGoogleSignIn } from "@/actions";
 import { AuthSearchParams } from "@/lib/types";
 
 interface PageProps {
-  searchParams: AuthSearchParams;
+  searchParams: Promise<AuthSearchParams>;
 }
 
-export default function LoginPage({ searchParams }: PageProps) {
+export default function LoginPage(props: PageProps) {
+  const searchParams = use(props.searchParams);
   console.log(searchParams);
   const aryan = "13";
   return (
