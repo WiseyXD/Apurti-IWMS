@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -8,13 +8,12 @@ import { IconBrandYoutubeFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { GridSmallBackgroundDemo } from "./background";
 import { motion } from "framer-motion";
-import MainImage from "@/public/241002_11h33m51s_screenshot.png"
-import Image1 from "@/public/warehouse.jpg"
-import Image2 from "@/public/cart-warehouse.jpg"
-import Image3 from "@/public/empty-warehouse.jpg"
-import Image4 from "@/public/types-of-inventory.webp"
+import MainImage from "@/public/241002_11h33m51s_screenshot.png";
+import Image1 from "@/public/warehouse.jpg";
+import Image2 from "@/public/cart-warehouse.jpg";
+import Image3 from "@/public/empty-warehouse.jpg";
+import Image4 from "@/public/types-of-inventory.webp";
 export function FeaturesSection1() {
-
   const features = [
     {
       title: "Automate Stock Organization",
@@ -58,7 +57,9 @@ export function FeaturesSection1() {
           </h4>
 
           <p className="text-sm lg:text-base  max-w-2xl  my-4 mx-auto text-neutral-500 text-center font-normal dark:text-neutral-300">
-            From inventory tracking to stock forecasting, Apurti offers tools for everything. It can even generate detailed reports and automate stock updates in real-time.
+            From inventory tracking to stock forecasting, Apurti offers tools
+            for everything. It can even generate detailed reports and automate
+            stock updates in real-time.
           </p>
         </div>
 
@@ -74,7 +75,6 @@ export function FeaturesSection1() {
           </div>
         </div>
       </div>
-
     </GridSmallBackgroundDemo>
   );
 }
@@ -107,7 +107,7 @@ const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
       className={cn(
         "text-sm md:text-base  max-w-4xl text-left mx-auto",
         "text-neutral-500 text-center font-normal dark:text-neutral-300",
-        "text-left max-w-sm mx-0 md:text-sm my-2"
+        "text-left max-w-sm mx-0 md:text-sm my-2",
       )}
     >
       {children}
@@ -139,32 +139,29 @@ export const SkeletonOne = () => {
 
 export const SkeletonThree = () => {
   return (
-    <Link
-      href="https://youtu.be/ELfeYHpTKd4?si=6RZTBwB8O98QxwBC"
-      target="__blank"
-      className="relative flex gap-10  h-full group/image"
-    >
-      <div className="w-full  mx-auto bg-transparent dark:bg-transparent group h-full">
-        <div className="flex flex-1 w-full h-full flex-col space-y-2  relative">
-          {/* TODO */}
-          <IconBrandYoutubeFilled className="h-20 w-20 absolute z-10 inset-0 text-red-500 m-auto " />
-          <Image
-            src={MainImage}
-            alt="header"
-            width={800}
-            height={800}
-            className="h-full w-full aspect-square object-cover object-center rounded-sm blur-none group-hover/image:blur-md transition-all duration-200"
-          />
-        </div>
+    // <Link
+    //   href="https://youtu.be/ELfeYHpTKd4?si=6RZTBwB8O98QxwBC"
+    //   target="__blank"
+    //   className="relative flex gap-10  h-full group/image"
+    // >
+    <div className="w-full  mx-auto bg-transparent dark:bg-transparent group h-full">
+      <div className="flex flex-1 w-full h-full flex-col space-y-2  relative">
+        {/* TODO */}
+        <Image
+          src={MainImage}
+          alt="header"
+          width={800}
+          height={800}
+          className="h-full w-full aspect-square object-cover object-center rounded-sm blur-none group-hover/image:blur-md transition-all duration-200"
+        />
       </div>
-    </Link>
+    </div>
+    // </Link>
   );
 };
 
 export const SkeletonTwo = () => {
-  const images = [
-    Image1, Image2, Image3, Image4
-  ]
+  const images = [Image1, Image2, Image3, Image4];
 
   const imageVariants = {
     whileHover: {
@@ -248,8 +245,6 @@ export const SkeletonTwo = () => {
           </motion.div>
         ))}
       </div>
-
-
 
       <div className="absolute left-0 z-[100] inset-y-0 w-20 bg-gradient-to-r from-white dark:from-black to-transparent  h-full pointer-events-none" />
       <div className="absolute right-0 z-[100] inset-y-0 w-20 bg-gradient-to-l from-white dark:from-black  to-transparent h-full pointer-events-none" />

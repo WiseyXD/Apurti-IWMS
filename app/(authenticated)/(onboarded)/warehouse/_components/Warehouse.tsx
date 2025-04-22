@@ -8,6 +8,8 @@ import {
   Box,
   Plane,
   PerspectiveCamera,
+  Html,
+  Sphere,
 } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -18,6 +20,7 @@ interface SectionProps {
   size: [number, number, number];
   color: string;
   description?: string;
+  isHighlighted?: boolean;
 }
 
 // Types for moving packages
@@ -27,6 +30,14 @@ interface PackageProps {
   color: string;
   speed: number;
   path: [number, number, number][];
+}
+
+// Types for product highlight
+interface ProductHighlightProps {
+  position: [number, number, number];
+  productId: string;
+  productName: string;
+  quantity: number;
 }
 
 // Memory management - dispose unused resources
@@ -64,6 +75,94 @@ const MemoryManager = () => {
   }, [gl, scene]);
 
   return null;
+};
+
+// Product highlight component
+const ProductHighlight = ({
+  position,
+  productId,
+  productName,
+  quantity,
+}: ProductHighlightProps) => {
+  const [hovered, setHovered] = useState(false);
+
+  // Add a pulsing animation
+  const pulseRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    if (pulseRef.current) {
+      // Simple pulsing animation
+      pulseRef.current.scale.x =
+        1 + Math.sin(state.clock.elapsedTime * 2) * 0.2;
+      pulseRef.current.scale.y =
+        1 + Math.sin(state.clock.elapsedTime * 2) * 0.2;
+      pulseRef.current.scale.z =
+        1 + Math.sin(state.clock.elapsedTime * 2) * 0.2;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Pulsing highlight sphere */}
+      <Sphere
+        ref={pulseRef}
+        args={[0.8, 16, 16]}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+      >
+        <meshBasicMaterial color="#ff0000" transparent opacity={0.3} />
+      </Sphere>
+
+      {/* Product label */}
+      <Box args={[0.6, 0.6, 0.6]} position={[0, 0, 0]}>
+        <meshBasicMaterial color="#ffffff" />
+      </Box>
+
+      {/* Product ID label */}
+      <Text
+        position={[0, 0, 0.31]}
+        fontSize={0.2}
+        color="#ff0000"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {productId}
+      </Text>
+
+      {/* Popup with more details */}
+      {hovered && (
+        <Html position={[0, 1.5, 0]} center style={{ pointerEvents: "none" }}>
+          <div className="bg-white p-2 rounded shadow-lg border border-gray-200 w-48">
+            <div className="font-bold text-sm">{productName}</div>
+            <div className="flex justify-between mt-1 text-xs">
+              <span>ID: {productId}</span>
+              <span>Qty: {quantity}</span>
+            </div>
+          </div>
+        </Html>
+      )}
+
+      {/* Connecting line to floor */}
+      <line>
+        <bufferGeometry
+          attach="geometry"
+          onUpdate={(self) => {
+            const points = [
+              new THREE.Vector3(0, 0, 0),
+              new THREE.Vector3(0, -position[1] + 0.05, 0),
+            ];
+            self.setFromPoints(points);
+          }}
+        />
+        <lineBasicMaterial
+          attach="material"
+          color="#ff0000"
+          dashSize={0.2}
+          gapSize={0.1}
+        />
+      </line>
+    </group>
+  );
 };
 
 // Error boundary for WebGL context loss
@@ -194,14 +293,28 @@ const WarehouseSection = ({
   size,
   color,
   description = "",
+  isHighlighted = false,
 }: SectionProps) => {
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
+
+  // Reference for animation
+  const boxRef = useRef<THREE.Mesh>(null);
+
+  // Animate when highlighted
+  useFrame((state, delta) => {
+    if (boxRef.current && isHighlighted) {
+      // Subtle pulsing effect for highlighted sections
+      const pulse = Math.sin(state.clock.elapsedTime * 3) * 0.05 + 1;
+      boxRef.current.scale.set(pulse, pulse, pulse);
+    }
+  });
 
   // Use simple material without complex shading
   return (
     <group>
       <Box
+        ref={boxRef}
         args={size}
         position={position}
         castShadow={false}
@@ -211,7 +324,7 @@ const WarehouseSection = ({
         onClick={() => setActive(!active)}
       >
         <meshBasicMaterial
-          color={hovered ? "#ffffff" : color}
+          color={hovered ? "#ffffff" : isHighlighted ? "#ffcccc" : color}
           transparent
           opacity={0.8}
         />
@@ -226,20 +339,32 @@ const WarehouseSection = ({
         anchorY="middle"
       >
         {name}
+        {isHighlighted && " *"}
       </Text>
 
       {/* Show description when active - only when clicked */}
-      {active && description && (
+      {(active || isHighlighted) && description && (
         <Text
           position={[position[0], position[1] + size[1] / 2 + 1.2, position[2]]}
-          color="#333333"
+          color={isHighlighted ? "#ff0000" : "#333333"}
           fontSize={0.4}
           maxWidth={4}
           anchorX="center"
           anchorY="middle"
         >
           {description}
+          {isHighlighted && " (Product Found)"}
         </Text>
+      )}
+
+      {/* Add visual indicator when section is highlighted */}
+      {isHighlighted && (
+        <Box
+          args={[size[0] + 0.2, size[1] + 0.2, size[2] + 0.2]}
+          position={position}
+        >
+          <meshBasicMaterial color="#ff0000" wireframe={true} />
+        </Box>
       )}
     </group>
   );
@@ -342,7 +467,7 @@ const CameraController = () => {
 };
 
 // Scene component to hold all 3D elements
-const WarehouseScene = () => {
+const WarehouseScene = ({ selectedProduct = null }) => {
   // Define simplified warehouse sections
   const sections: SectionProps[] = [
     {
@@ -351,6 +476,7 @@ const WarehouseScene = () => {
       size: [16, 2, 4],
       color: "#4dabf5",
       description: "Packages arrive here",
+      isHighlighted: selectedProduct?.location === "Receiving Dock",
     },
     {
       name: "Cold Storage",
@@ -358,6 +484,7 @@ const WarehouseScene = () => {
       size: [10, 4, 12],
       color: "#80deea",
       description: "Temperature controlled",
+      isHighlighted: selectedProduct?.location === "Cold Storage",
     },
     {
       name: "General Storage",
@@ -365,6 +492,7 @@ const WarehouseScene = () => {
       size: [12, 6, 18],
       color: "#9ccc65",
       description: "Main storage area",
+      isHighlighted: selectedProduct?.location === "General Storage",
     },
     {
       name: "Management Office",
@@ -372,6 +500,7 @@ const WarehouseScene = () => {
       size: [6, 3, 4],
       color: "#ffb74d",
       description: "Office area",
+      isHighlighted: selectedProduct?.location === "Management Office",
     },
     {
       name: "Packaging Station",
@@ -379,8 +508,40 @@ const WarehouseScene = () => {
       size: [8, 2, 8],
       color: "#ba68c8",
       description: "Packaging area",
+      isHighlighted: selectedProduct?.location === "Packaging Station",
+    },
+    {
+      name: "Quality Control",
+      position: [-4, 1, -7],
+      size: [5, 2, 5],
+      color: "#f06292",
+      description: "Quality inspection",
+      isHighlighted: selectedProduct?.location === "Quality Control",
+    },
+    {
+      name: "Shipping Dock",
+      position: [0, 1, -13],
+      size: [16, 2, 4],
+      color: "#4db6ac",
+      description: "Items are shipped here",
+      isHighlighted: selectedProduct?.location === "Shipping Dock",
     },
   ];
+
+  // Get the position for a product highlight based on its location
+  const getProductHighlightPosition = () => {
+    if (!selectedProduct) return null;
+
+    const section = sections.find((s) => s.name === selectedProduct.location);
+    if (!section) return null;
+
+    // Position the highlight above the center of the section
+    return [
+      section.position[0],
+      section.position[1] + section.size[1] + 1.5,
+      section.position[2],
+    ] as [number, number, number];
+  };
 
   // Reduced number of moving packages for better performance
   const packages: PackageProps[] = [
@@ -442,8 +603,19 @@ const WarehouseScene = () => {
             size={section.size}
             color={section.color}
             description={section.description}
+            isHighlighted={section.isHighlighted}
           />
         ))}
+
+        {/* Product highlight if a product is selected */}
+        {selectedProduct && getProductHighlightPosition() && (
+          <ProductHighlight
+            position={getProductHighlightPosition()}
+            productId={selectedProduct.id}
+            productName={selectedProduct.name}
+            quantity={selectedProduct.quantity}
+          />
+        )}
 
         {/* Moving packages */}
         {packages.map((pkg, index) => (
@@ -511,7 +683,7 @@ const ContextLossHandler = () => {
 };
 
 // Main exported component
-const Warehouse3D = () => {
+const Warehouse3D = ({ selectedProduct = null }) => {
   const [isClient, setIsClient] = useState(false);
   const [renderError, setRenderError] = useState(false);
 
@@ -556,7 +728,6 @@ const Warehouse3D = () => {
       </div>
     );
   }
-
   if (renderError) {
     return (
       <div className="w-full h-[600px] bg-gray-100 rounded-lg flex flex-col items-center justify-center p-4">
@@ -603,8 +774,24 @@ const Warehouse3D = () => {
       >
         <ContextLossHandler />
         <PerspectiveCamera makeDefault position={[0, 20, 20]} fov={45} />
-        <WarehouseScene />
+        <WarehouseScene selectedProduct={selectedProduct} />
       </Canvas>
+
+      {/* Overlay instructions for when a product is selected */}
+      {selectedProduct && (
+        <div className="absolute top-4 left-4 bg-white p-3 rounded shadow-md border border-red-200 max-w-xs">
+          <p className="text-sm font-medium text-gray-800 mb-1">
+            <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>
+            Product Highlighted: {selectedProduct.id}
+          </p>
+          <p className="text-xs text-gray-600">
+            Located in: {selectedProduct.location}
+          </p>
+          <div className="mt-2 text-xs text-gray-500">
+            Click and drag to rotate view. Scroll to zoom.
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,6 +3,8 @@
 
 import { Box } from "lucide-react";
 import Image from "next/image";
+import { Button } from "../ui/button";
+import { signOut } from "next-auth/react";
 
 export function DashboardHeader({ userEmail }: { userEmail: string }) {
   return (
@@ -25,6 +27,11 @@ export function DashboardHeader({ userEmail }: { userEmail: string }) {
             />
             <span>{userEmail}</span>
           </div>
+        </div>
+        <div className="hidden md:block">
+          <Button onClick={() => signOut()} variant="outline">
+            Sign Out
+          </Button>
         </div>
       </div>
     </div>

@@ -12,6 +12,16 @@ export function RecentAlerts() {
       </CardHeader>
       <CardContent className="p-6 pt-0">
         <div className="space-y-4">
+          <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+            <div className="flex items-center gap-3 mb-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <p className="font-medium text-red-900">Out of Stock</p>
+            </div>
+            <p className="text-sm text-red-800">
+              Summer essentials like Sunscreen and Swimwear are out of stock
+            </p>
+            <p className="text-xs text-red-700 mt-2">1 day ago</p>
+          </div>
           <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
             <div className="flex items-center gap-3 mb-2">
               <AlertTriangle className="w-5 h-5 text-amber-600" />

@@ -3,132 +3,170 @@
 import dynamic from "next/dynamic";
 import React, { useState, useEffect, useRef } from "react";
 
-// Create a simple 2D fallback component
-const Fallback2DView = () => (
-  <div className="w-full h-[600px] bg-gray-50 rounded-lg shadow-lg overflow-hidden p-4">
-    <div className="w-full h-full relative bg-gray-100 rounded border border-gray-200">
-      {/* Simplified warehouse layout */}
-      <div
-        className="absolute w-[320px] h-[80px] border-2 border-gray-600"
-        style={{
-          left: "40px",
-          top: "80px",
-          backgroundColor: "#4dabf5",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          Receiving Dock
-        </span>
-      </div>
-      <div
-        className="absolute w-[200px] h-[240px] border-2 border-gray-600"
-        style={{
-          left: "80px",
-          top: "200px",
-          backgroundColor: "#80deea",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          Cold Storage
-        </span>
-      </div>
-      <div
-        className="absolute w-[240px] h-[240px] border-2 border-gray-600"
-        style={{
-          left: "440px",
-          top: "200px",
-          backgroundColor: "#9ccc65",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          General Storage
-        </span>
-      </div>
-      <div
-        className="absolute w-[120px] h-[80px] border-2 border-gray-600"
-        style={{
-          left: "160px",
-          top: "500px",
-          backgroundColor: "#ffb74d",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          Management Office
-        </span>
-      </div>
-      <div
-        className="absolute w-[160px] h-[160px] border-2 border-gray-600"
-        style={{
-          left: "320px",
-          top: "280px",
-          backgroundColor: "#ba68c8",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          Packaging Station
-        </span>
-      </div>
-      <div
-        className="absolute w-[120px] h-[100px] border-2 border-gray-600"
-        style={{
-          left: "120px",
-          top: "350px",
-          backgroundColor: "#f06292",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          Quality Control
-        </span>
-      </div>
-      <div
-        className="absolute w-[320px] h-[80px] border-2 border-gray-600"
-        style={{
-          left: "280px",
-          top: "80px",
-          backgroundColor: "#4db6ac",
-          opacity: 0.7,
-        }}
-      >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
-          Shipping Dock
-        </span>
-      </div>
+// Create a simple 2D fallback component with product highlighting
+const Fallback2DView = ({ selectedProduct = null }) => {
+  // Define section positions for mapping with product locations
+  const sections = [
+    {
+      name: "Receiving Dock",
+      color: "#4dabf5",
+      x: 40,
+      y: 80,
+      width: 320,
+      height: 80,
+    },
+    {
+      name: "Cold Storage",
+      color: "#80deea",
+      x: 80,
+      y: 200,
+      width: 200,
+      height: 240,
+    },
+    {
+      name: "General Storage",
+      color: "#9ccc65",
+      x: 440,
+      y: 200,
+      width: 240,
+      height: 240,
+    },
+    {
+      name: "Management Office",
+      color: "#ffb74d",
+      x: 160,
+      y: 500,
+      width: 120,
+      height: 80,
+    },
+    {
+      name: "Packaging Station",
+      color: "#ba68c8",
+      x: 320,
+      y: 280,
+      width: 160,
+      height: 160,
+    },
+    {
+      name: "Quality Control",
+      color: "#f06292",
+      x: 120,
+      y: 350,
+      width: 120,
+      height: 100,
+    },
+    {
+      name: "Shipping Dock",
+      color: "#4db6ac",
+      x: 280,
+      y: 80,
+      width: 320,
+      height: 80,
+    },
+  ];
 
-      {/* Add some static "packages" */}
-      <div
-        className="absolute w-6 h-6 bg-red-500 rounded"
-        style={{ left: 200, top: 100 }}
-      ></div>
-      <div
-        className="absolute w-5 h-5 bg-blue-500 rounded"
-        style={{ left: 350, top: 280 }}
-      ></div>
-      <div
-        className="absolute w-4 h-4 bg-green-500 rounded"
-        style={{ left: 480, top: 320 }}
-      ></div>
+  // Find the section that matches the selected product's location
+  const findSectionByName = (locationName) => {
+    return sections.find((section) => section.name === locationName);
+  };
 
-      {/* Add warehouse boundaries */}
-      <div className="absolute w-full h-full border-4 border-gray-400 pointer-events-none"></div>
+  // Calculate product position within a section
+  const getProductPosition = (section) => {
+    // For 2D view, we just put the highlight in the center of the section
+    return {
+      x: section.x + section.width / 2,
+      y: section.y + section.height / 2,
+    };
+  };
 
-      {/* Add north indicator */}
-      <div className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold border border-gray-400">
-        N
-      </div>
+  return (
+    <div className="w-full h-[600px] bg-gray-50 rounded-lg shadow-lg overflow-hidden p-4">
+      <div className="w-full h-full relative bg-gray-100 rounded border border-gray-200">
+        {/* Warehouse sections */}
+        {sections.map((section, index) => (
+          <div
+            key={`section-${index}`}
+            className="absolute border-2 border-gray-600"
+            style={{
+              left: section.x + "px",
+              top: section.y + "px",
+              width: section.width + "px",
+              height: section.height + "px",
+              backgroundColor: section.color,
+              opacity: 0.7,
+            }}
+          >
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
+              {section.name}
+            </span>
+          </div>
+        ))}
 
-      {/* Add scale indicator */}
-      <div className="absolute bottom-4 left-4 w-32 h-6 bg-white flex items-center justify-center text-xs border border-gray-400">
-        Scale: 1:100
+        {/* Highlighted product if selected */}
+        {selectedProduct &&
+          (() => {
+            const section = findSectionByName(selectedProduct.location);
+            if (section) {
+              const position = getProductPosition(section);
+              return (
+                <div
+                  className="absolute z-10 animate-pulse"
+                  style={{
+                    left: position.x - 15 + "px",
+                    top: position.y - 15 + "px",
+                  }}
+                >
+                  {/* Highlight circle */}
+                  <div className="w-[30px] h-[30px] rounded-full bg-red-500 opacity-50 animate-ping absolute"></div>
+                  {/* Product indicator */}
+                  <div className="w-8 h-8 rounded-full bg-white border-2 border-red-500 flex items-center justify-center font-bold text-xs text-red-500 z-20">
+                    {selectedProduct.id}
+                  </div>
+                  {/* Product popup */}
+                  <div className="absolute top-9 left-0 bg-white shadow-lg rounded-md p-2 w-[140px] text-xs border border-gray-200 z-30">
+                    <div className="font-bold text-gray-800">
+                      {selectedProduct.name}
+                    </div>
+                    <div className="mt-1 text-gray-600">
+                      Qty: {selectedProduct.quantity}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
+        {/* Add some static "packages" */}
+        <div
+          className="absolute w-6 h-6 bg-red-500 rounded"
+          style={{ left: 200, top: 100 }}
+        ></div>
+        <div
+          className="absolute w-5 h-5 bg-blue-500 rounded"
+          style={{ left: 350, top: 280 }}
+        ></div>
+        <div
+          className="absolute w-4 h-4 bg-green-500 rounded"
+          style={{ left: 480, top: 320 }}
+        ></div>
+
+        {/* Add warehouse boundaries */}
+        <div className="absolute w-full h-full border-4 border-gray-400 pointer-events-none"></div>
+
+        {/* Add north indicator */}
+        <div className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold border border-gray-400">
+          N
+        </div>
+
+        {/* Add scale indicator */}
+        <div className="absolute bottom-4 left-4 w-32 h-6 bg-white flex items-center justify-center text-xs border border-gray-400">
+          Scale: 1:100
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Create a wrapper for the 3D component to handle WebGL context loss
 const CreateWarehouse3DWithContextLossHandling = () => {
@@ -186,7 +224,7 @@ const CreateWarehouse3DWithContextLossHandling = () => {
           }, []);
 
           if (contextLost) {
-            return <Fallback2DView />;
+            return <Fallback2DView {...props} />;
           }
 
           return (
@@ -215,7 +253,7 @@ const CreateWarehouse3DWithContextLossHandling = () => {
 // Create the wrapped component
 const Warehouse3D = CreateWarehouse3DWithContextLossHandling();
 
-export default function WarehouseComponent() {
+export default function WarehouseComponent({ selectedProduct = null }) {
   const [activeView, setActiveView] = useState("3d");
   const [renderFallback, setRenderFallback] = useState(false);
   const [renderingChecked, setRenderingChecked] = useState(false);
@@ -387,11 +425,21 @@ export default function WarehouseComponent() {
               <li>Scroll to zoom in/out</li>
               <li>Click on warehouse sections for more details</li>
               <li>Watch the animated packages moving through the warehouse</li>
+              {selectedProduct && (
+                <li className="text-blue-600 font-medium">
+                  Product "{selectedProduct.id}" is highlighted in the model
+                </li>
+              )}
             </>
           ) : (
             <>
               <li>Hover over warehouse sections for details</li>
               <li>Static 2D representation of the warehouse layout</li>
+              {selectedProduct && (
+                <li className="text-blue-600 font-medium">
+                  Product "{selectedProduct.id}" is highlighted in the model
+                </li>
+              )}
             </>
           )}
         </ul>
@@ -400,9 +448,9 @@ export default function WarehouseComponent() {
       {/* Main content based on active view */}
       {activeView === "3d" ? (
         renderFallback ? (
-          <Fallback2DView />
+          <Fallback2DView selectedProduct={selectedProduct} />
         ) : renderingChecked ? (
-          <Warehouse3D />
+          <Warehouse3D selectedProduct={selectedProduct} />
         ) : (
           <div className="w-full h-[600px] flex items-center justify-center bg-gray-50 rounded-lg">
             <div className="flex flex-col items-center">
@@ -423,14 +471,40 @@ export default function WarehouseComponent() {
             {sections.map((section, index) => (
               <div
                 key={`info-${index}`}
-                className="p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md"
+                className={`p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md ${
+                  selectedProduct && selectedProduct.location === section.name
+                    ? "ring-2 ring-red-500 bg-red-50"
+                    : ""
+                }`}
                 style={{
                   borderLeftWidth: "4px",
                   borderLeftColor: section.color,
                 }}
               >
-                <h4 className="font-bold text-gray-800 mb-1">{section.name}</h4>
+                <h4 className="font-bold text-gray-800 mb-1">
+                  {section.name}
+                  {selectedProduct &&
+                    selectedProduct.location === section.name && (
+                      <span className="ml-2 text-xs text-white bg-red-500 px-2 py-1 rounded-full">
+                        Product Found
+                      </span>
+                    )}
+                </h4>
                 <p className="text-gray-600 text-sm">{section.description}</p>
+
+                {/* Display product details if this section contains the selected product */}
+                {selectedProduct &&
+                  selectedProduct.location === section.name && (
+                    <div className="mt-3 pt-3 border-t border-red-200">
+                      <div className="text-sm font-medium text-red-700">
+                        {selectedProduct.name} ({selectedProduct.id})
+                      </div>
+                      <div className="grid grid-cols-2 mt-2 gap-2 text-xs text-gray-600">
+                        <div>Quantity: {selectedProduct.quantity}</div>
+                        <div>Status: {selectedProduct.status}</div>
+                      </div>
+                    </div>
+                  )}
               </div>
             ))}
           </div>
@@ -460,10 +534,7 @@ export default function WarehouseComponent() {
                 3D View Troubleshooting
               </h3>
               <p className="text-sm text-gray-700 mb-3">
-                We've detected that your browser may not fully support WebGL,
-                which is required for the 3D warehouse view. We're showing you a
-                simplified 2D view instead. To enable the full 3D experience,
-                you can try:
+                WebGL is required for the 3D warehouse view.
               </p>
               <ul className="list-disc list-inside text-sm text-gray-700">
                 <li>Using an updated version of Chrome, Firefox, or Edge</li>
@@ -489,15 +560,44 @@ export default function WarehouseComponent() {
           <h3 className="text-sm font-bold mb-2">Warehouse Sections</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {sections.map((section, index) => (
-              <div key={`legend-${index}`} className="flex items-center">
+              <div
+                key={`legend-${index}`}
+                className={`flex items-center p-1 rounded ${
+                  selectedProduct && selectedProduct.location === section.name
+                    ? "bg-red-50"
+                    : ""
+                }`}
+              >
                 <div
                   className="w-4 h-4 rounded-sm mr-2"
                   style={{ backgroundColor: section.color }}
                 ></div>
-                <span className="text-xs text-gray-700">{section.name}</span>
+                <span className="text-xs text-gray-700">
+                  {section.name}
+                  {selectedProduct &&
+                    selectedProduct.location === section.name && (
+                      <span className="ml-1 text-red-500">*</span>
+                    )}
+                </span>
               </div>
             ))}
           </div>
+
+          {/* Selected product info */}
+          {selectedProduct && activeView === "3d" && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
+                <span className="text-sm font-medium">
+                  Product: {selectedProduct.id} - {selectedProduct.name}
+                </span>
+              </div>
+              <p className="text-xs text-gray-600 mt-1 ml-6">
+                Located in: {selectedProduct.location} • Quantity:{" "}
+                {selectedProduct.quantity}
+              </p>
+            </div>
+          )}
 
           {/* 3D rendering status */}
           {renderFallback && (

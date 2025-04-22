@@ -48,31 +48,21 @@ export function QuickActions() {
             <ArrowRight className="w-5 h-5 text-slate-400" />
           </Link>
 
-          <button className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+          <Link
+            href="/warehouse"
+            className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+          >
             <div className="flex items-center gap-3">
               <div className="bg-indigo-100 p-2 rounded-lg">
                 <Package className="w-5 h-5 text-indigo-600" />
               </div>
               <div>
-                <p className="font-medium text-slate-900">New Inventory</p>
+                <p className="font-medium text-slate-900">Warehouse View</p>
                 <p className="text-sm text-slate-600">Add new items</p>
               </div>
             </div>
             <ArrowRight className="w-5 h-5 text-slate-400" />
-          </button>
-
-          <button className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-2 rounded-lg">
-                <Truck className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="font-medium text-slate-900">Shipping</p>
-                <p className="text-sm text-slate-600">Manage shipments</p>
-              </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-slate-400" />
-          </button>
+          </Link>
         </div>
       </CardContent>
     </Card>

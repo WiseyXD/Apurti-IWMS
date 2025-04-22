@@ -5,9 +5,9 @@ import { PerformanceChart } from "@/components/dashboard/performance-chart";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { InventoryChart } from "@/components/dashboard/inventory-chart";
 import { RecentAlerts } from "@/components/dashboard/recent-alerts";
-import { DashboardHeader } from "@/components/dashboard/header";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { DashboardHeader } from "@/components/dashboard/header";
 
 export default async function DashboardPage() {
   const session = await auth();
