@@ -1,8 +1,28 @@
+// app/(authenticated)/(onboarded)/warehouse/_components/ProductSearch.tsx
 import React, { useState, useEffect } from "react";
 import { Search, Package, X, Info } from "lucide-react";
 
-// Mock product data (this would come from a database in the future)
-const mockProducts = [
+// Types
+interface Product {
+  id: string;
+  name: string;
+  location: string;
+  position: [number, number, number];
+  quantity: number;
+  lastUpdated: string;
+  category: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  status: "IN_STOCK" | "OUT_OF_STOCK" | "LOW_STOCK" | "IN_TRANSIT" | "DAMAGED";
+}
+
+interface ProductSearchProps {
+  mode?: "live" | "demo";
+  onProductSelect?: (product: Product) => void;
+  onClearSelection?: () => void;
+}
+
+// Mock product data for demo mode
+const mockProducts: Product[] = [
   {
     id: "P001",
     name: "Premium Headphones",
@@ -11,8 +31,8 @@ const mockProducts = [
     quantity: 45,
     lastUpdated: "2025-04-16T09:30:00",
     category: "Electronics",
-    priority: "Medium",
-    status: "In Stock",
+    priority: "MEDIUM",
+    status: "IN_STOCK",
   },
   {
     id: "P002",
@@ -22,8 +42,8 @@ const mockProducts = [
     quantity: 120,
     lastUpdated: "2025-04-18T14:15:00",
     category: "Food & Beverage",
-    priority: "High",
-    status: "In Stock",
+    priority: "HIGH",
+    status: "IN_STOCK",
   },
   {
     id: "P003",
@@ -33,8 +53,8 @@ const mockProducts = [
     quantity: 12,
     lastUpdated: "2025-04-19T11:00:00",
     category: "Electronics",
-    priority: "High",
-    status: "Limited Stock",
+    priority: "HIGH",
+    status: "LOW_STOCK",
   },
   {
     id: "P004",
@@ -44,8 +64,8 @@ const mockProducts = [
     quantity: 8,
     lastUpdated: "2025-04-15T16:45:00",
     category: "Furniture",
-    priority: "Low",
-    status: "In Stock",
+    priority: "LOW",
+    status: "IN_STOCK",
   },
   {
     id: "P005",
@@ -55,38 +75,76 @@ const mockProducts = [
     quantity: 30,
     lastUpdated: "2025-04-21T10:20:00",
     category: "Electronics",
-    priority: "Medium",
-    status: "New Arrival",
+    priority: "MEDIUM",
+    status: "IN_TRANSIT",
   },
 ];
 
-const ProductSearch = ({ onProductSelect, onClearSelection }) => {
+const ProductSearch: React.FC<ProductSearchProps> = ({
+  mode = "demo",
+  onProductSelect,
+  onClearSelection,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Search logic
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setSearchResults([]);
-      setDropdownOpen(false);
-      return;
-    }
+    const searchProducts = async () => {
+      if (searchTerm.trim() === "") {
+        setSearchResults([]);
+        setDropdownOpen(false);
+        return;
+      }
 
-    const filteredResults = mockProducts.filter(
-      (product) =>
-        product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.location.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+      setIsLoading(true);
 
-    setSearchResults(filteredResults);
-    setDropdownOpen(true);
-  }, [searchTerm]);
+      try {
+        if (mode === "live") {
+          // Live mode: Query the database
+          const response = await fetch(
+            `/api/products/search?q=${encodeURIComponent(searchTerm)}`,
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch products");
+          }
+
+          const data = await response.json();
+          setSearchResults(data);
+        } else {
+          // Demo mode: Filter mock products
+          const filteredResults = mockProducts.filter(
+            (product) =>
+              product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              product.location.toLowerCase().includes(searchTerm.toLowerCase()),
+          );
+
+          // Simulate API delay
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          setSearchResults(filteredResults);
+        }
+
+        setDropdownOpen(true);
+      } catch (error) {
+        console.error("Search error:", error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce search
+    const timeoutId = setTimeout(searchProducts, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, mode]);
 
   // Handle product selection
-  const handleProductSelect = (product) => {
+  const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
     setSearchTerm(product.name);
     setDropdownOpen(false);
@@ -109,7 +167,7 @@ const ProductSearch = ({ onProductSelect, onClearSelection }) => {
   };
 
   // Format timestamp to readable date
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -120,18 +178,41 @@ const ProductSearch = ({ onProductSelect, onClearSelection }) => {
     });
   };
 
+  // Format priority for display
+  const formatPriority = (priority: Product["priority"]): string => {
+    const priorityMap = {
+      LOW: "Low",
+      MEDIUM: "Medium",
+      HIGH: "High",
+    };
+    return priorityMap[priority] || priority;
+  };
+
+  // Format status for display
+  const formatStatus = (status: Product["status"]): string => {
+    const statusMap = {
+      IN_STOCK: "In Stock",
+      OUT_OF_STOCK: "Out of Stock",
+      LOW_STOCK: "Limited Stock",
+      IN_TRANSIT: "New Arrival",
+      DAMAGED: "Damaged",
+    };
+    return statusMap[status] || status;
+  };
+
   // Status badge component
-  const StatusBadge = ({ status }) => {
+  const StatusBadge = ({ status }: { status: Product["status"] }) => {
     let bgColor = "bg-gray-100 text-gray-800";
 
-    if (status === "In Stock") bgColor = "bg-green-100 text-green-800";
-    if (status === "Limited Stock") bgColor = "bg-yellow-100 text-yellow-800";
-    if (status === "Out of Stock") bgColor = "bg-red-100 text-red-800";
-    if (status === "New Arrival") bgColor = "bg-blue-100 text-blue-800";
+    if (status === "IN_STOCK") bgColor = "bg-green-100 text-green-800";
+    if (status === "LOW_STOCK") bgColor = "bg-yellow-100 text-yellow-800";
+    if (status === "OUT_OF_STOCK") bgColor = "bg-red-100 text-red-800";
+    if (status === "IN_TRANSIT") bgColor = "bg-blue-100 text-blue-800";
+    if (status === "DAMAGED") bgColor = "bg-orange-100 text-orange-800";
 
     return (
       <span className={`text-xs px-2 py-1 rounded-full ${bgColor}`}>
-        {status}
+        {formatStatus(status)}
       </span>
     );
   };
@@ -149,7 +230,10 @@ const ProductSearch = ({ onProductSelect, onClearSelection }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 border-none focus:ring-0 py-2 px-3 text-gray-700 placeholder-gray-400"
           />
-          {searchTerm && (
+          {isLoading && (
+            <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full mr-3" />
+          )}
+          {searchTerm && !isLoading && (
             <button
               onClick={handleClearSelection}
               className="text-gray-400 hover:text-gray-600 mr-3"
@@ -185,11 +269,14 @@ const ProductSearch = ({ onProductSelect, onClearSelection }) => {
           </div>
         )}
 
-        {dropdownOpen && searchTerm && searchResults.length === 0 && (
-          <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 p-4 text-center text-gray-500">
-            No products found matching "{searchTerm}"
-          </div>
-        )}
+        {dropdownOpen &&
+          searchTerm &&
+          searchResults.length === 0 &&
+          !isLoading && (
+            <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 p-4 text-center text-gray-500">
+              No products found matching "{searchTerm}"
+            </div>
+          )}
       </div>
 
       {/* Selected Product Details */}
@@ -233,7 +320,9 @@ const ProductSearch = ({ onProductSelect, onClearSelection }) => {
             </div>
             <div className="p-3 bg-gray-50 rounded-md">
               <div className="text-xs text-gray-500 mb-1">Priority</div>
-              <div className="font-medium">{selectedProduct.priority}</div>
+              <div className="font-medium">
+                {formatPriority(selectedProduct.priority)}
+              </div>
             </div>
           </div>
 

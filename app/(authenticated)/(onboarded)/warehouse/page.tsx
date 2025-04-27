@@ -574,6 +574,7 @@ export default function WarehousePage() {
           <ProductSearch
             onProductSelect={handleProductSelect}
             onClearSelection={handleClearSelection}
+            mode={isDemo ? "demo" : "live"}
           />
         </div>
       )}
