@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -71,6 +69,12 @@ model WarehouseSection {
   sizeY       Float
   sizeZ       Float
   
+  // Section properties for AI placement
+  temperature Float?   // For temperature-controlled sections
+  humidity    Float?   // For humidity-controlled sections
+  hazardous   Boolean @default(false) // For hazardous materials
+  fragile     Boolean @default(false) // For fragile items
+  
   // Relations
   warehouseId String
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
@@ -94,6 +98,14 @@ model Product {
   height        Float?
   depth         Float?
   weight        Float?
+  
+  // Product requirements for AI placement
+  requiresColdStorage Boolean @default(false)
+  minTemperature     Float?  // Minimum temperature requirement
+  maxTemperature     Float?  // Maximum temperature requirement
+  humidity           Float?  // Humidity requirement
+  fragile            Boolean @default(false)
+  hazardous          Boolean @default(false)
   
   // Location in warehouse
   warehouseId   String

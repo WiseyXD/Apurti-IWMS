@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { warehouse, sections } = body;
 
-    // Create the warehouse
+    // Create the warehouse with enhanced sections
     const newWarehouse = await prisma.warehouse.create({
       data: {
         name: warehouse.name,
@@ -36,6 +36,10 @@ export async function POST(req: Request) {
             sizeX: section.sizeX,
             sizeY: section.sizeY,
             sizeZ: section.sizeZ,
+            temperature: section.temperature,
+            humidity: section.humidity,
+            hazardous: section.hazardous || false,
+            fragile: section.fragile || false,
           })),
         },
       },

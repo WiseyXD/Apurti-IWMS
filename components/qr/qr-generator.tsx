@@ -1,3 +1,4 @@
+// components/qr/qr-generator.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -6,6 +7,7 @@ import QRCode from "react-qr-code";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -14,7 +16,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { QRFormSchema } from "@/lib/validation";
+
+interface QRFormSchema {
+  shipmentNumber: string;
+  orderNumber: string;
+  customerName: string;
+  destination: string;
+  weight: string;
+  deliveryDate: string;
+  category: string;
+  requiresColdStorage: boolean;
+  fragile: boolean;
+  hazardous: boolean;
+  temperature?: string;
+}
 
 export function QRGenerator() {
   const [qrValue, setQrValue] = useState<string>("");
@@ -28,6 +43,11 @@ export function QRGenerator() {
       destination: "",
       weight: "",
       deliveryDate: "",
+      category: "",
+      requiresColdStorage: false,
+      fragile: false,
+      hazardous: false,
+      temperature: "",
     },
   });
 
@@ -166,6 +186,104 @@ export function QRGenerator() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base">Category</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter category (e.g., Electronics, Food)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Product Requirements Switches */}
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="font-medium">Storage Requirements</h3>
+
+                  <FormField
+                    control={form.control}
+                    name="requiresColdStorage"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Requires Cold Storage</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch("requiresColdStorage") && (
+                    <FormField
+                      control={form.control}
+                      name="temperature"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base">
+                            Temperature (°C)
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter temperature"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="fragile"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Fragile Item</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="hazardous"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Hazardous Material</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
