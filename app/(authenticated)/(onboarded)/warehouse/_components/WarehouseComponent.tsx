@@ -4,9 +4,13 @@ import dynamic from "next/dynamic";
 import React, { useState, useEffect, useRef } from "react";
 
 // Create a simple 2D fallback component with product highlighting
-const Fallback2DView = ({ selectedProduct = null }) => {
+const Fallback2DView = ({
+  selectedProduct = null,
+  customWarehouseData = null,
+  isEditMode = false,
+}) => {
   // Define section positions for mapping with product locations
-  const sections = [
+  const defaultSections = [
     {
       name: "Receiving Dock",
       color: "#4dabf5",
@@ -65,6 +69,18 @@ const Fallback2DView = ({ selectedProduct = null }) => {
     },
   ];
 
+  const sections = customWarehouseData
+    ? customWarehouseData.sections.map((section, index) => ({
+        name: section.name,
+        color: section.color,
+        // Convert 3D coordinates to 2D canvas coordinates
+        x: (section.positionX + customWarehouseData.length / 2) * 10 + 100,
+        y: (section.positionZ + customWarehouseData.width / 2) * 10 + 100,
+        width: section.sizeX * 10,
+        height: section.sizeZ * 10,
+      }))
+    : defaultSections;
+
   // Find the section that matches the selected product's location
   const findSectionByName = (locationName) => {
     return sections.find((section) => section.name === locationName);
@@ -81,29 +97,47 @@ const Fallback2DView = ({ selectedProduct = null }) => {
 
   return (
     <div className="w-full h-[600px] bg-gray-50 rounded-lg shadow-lg overflow-hidden p-4">
+      {/* Edit mode indicator */}
+      {isEditMode && (
+        <div className="absolute top-2 left-2 bg-orange-100 px-3 py-1 rounded-full border border-orange-200 z-20">
+          <span className="text-xs font-medium text-orange-800">
+            Edit Mode Active
+          </span>
+        </div>
+      )}
       <div className="w-full h-full relative bg-gray-100 rounded border border-gray-200">
         {/* Warehouse sections */}
         {sections.map((section, index) => (
           <div
             key={`section-${index}`}
-            className="absolute border-2 border-gray-600"
+            className={`absolute border-2 ${isEditMode ? "border-orange-500" : "border-gray-600"}`}
             style={{
               left: section.x + "px",
               top: section.y + "px",
               width: section.width + "px",
               height: section.height + "px",
               backgroundColor: section.color,
-              opacity: 0.7,
+              opacity: isEditMode ? 0.5 : 0.7,
+              transition: "all 0.3s ease",
             }}
           >
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold bg-white px-2 py-1 rounded">
               {section.name}
             </span>
+
+            {/* Show dimensions in edit mode */}
+            {isEditMode && (
+              <span className="absolute bottom-0 left-0 text-[10px] bg-white px-1 text-orange-600">
+                {Math.round(section.width / 10)}m ×{" "}
+                {Math.round(section.height / 10)}m
+              </span>
+            )}
           </div>
         ))}
 
         {/* Highlighted product if selected */}
-        {selectedProduct &&
+        {!isEditMode &&
+          selectedProduct &&
           (() => {
             const section = findSectionByName(selectedProduct.location);
             if (section) {
@@ -138,21 +172,27 @@ const Fallback2DView = ({ selectedProduct = null }) => {
           })()}
 
         {/* Add some static "packages" */}
-        <div
-          className="absolute w-6 h-6 bg-red-500 rounded"
-          style={{ left: 200, top: 100 }}
-        ></div>
-        <div
-          className="absolute w-5 h-5 bg-blue-500 rounded"
-          style={{ left: 350, top: 280 }}
-        ></div>
-        <div
-          className="absolute w-4 h-4 bg-green-500 rounded"
-          style={{ left: 480, top: 320 }}
-        ></div>
+        {!isEditMode && (
+          <>
+            <div
+              className="absolute w-6 h-6 bg-red-500 rounded"
+              style={{ left: 200, top: 100 }}
+            ></div>
+            <div
+              className="absolute w-5 h-5 bg-blue-500 rounded"
+              style={{ left: 350, top: 280 }}
+            ></div>
+            <div
+              className="absolute w-4 h-4 bg-green-500 rounded"
+              style={{ left: 480, top: 320 }}
+            ></div>
+          </>
+        )}
 
         {/* Add warehouse boundaries */}
-        <div className="absolute w-full h-full border-4 border-gray-400 pointer-events-none"></div>
+        <div
+          className={`absolute w-full h-full border-4 ${isEditMode ? "border-orange-400" : "border-gray-400"} pointer-events-none`}
+        ></div>
 
         {/* Add north indicator */}
         <div className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold border border-gray-400">
@@ -253,54 +293,60 @@ const CreateWarehouse3DWithContextLossHandling = () => {
 // Create the wrapped component
 const Warehouse3D = CreateWarehouse3DWithContextLossHandling();
 
-export default function WarehouseComponent({ selectedProduct = null }) {
+export default function WarehouseComponent({
+  selectedProduct = null,
+  customWarehouseData = null,
+  isEditMode = false,
+}) {
   const [activeView, setActiveView] = useState("3d");
   const [renderFallback, setRenderFallback] = useState(false);
   const [renderingChecked, setRenderingChecked] = useState(false);
 
   // Sections data for legend/info panel
-  const sections = [
-    {
-      name: "Receiving Dock",
-      color: "#4dabf5",
-      description: "Packages arrive and are initially processed here",
-    },
-    {
-      name: "Cold Storage",
-      color: "#80deea",
-      description: "Temperature controlled storage for perishable items",
-    },
-    {
-      name: "General Storage",
-      color: "#9ccc65",
-      description: "Main storage area for non-perishable inventory",
-    },
-    {
-      name: "Management Office",
-      color: "#ffb74d",
-      description: "Administrative area for warehouse staff",
-    },
-    {
-      name: "Packaging Station",
-      color: "#ba68c8",
-      description: "Items are prepared for shipping here",
-    },
-    {
-      name: "Quality Control",
-      color: "#f06292",
-      description: "Items are inspected before shipping",
-    },
-    {
-      name: "Shipping Dock",
-      color: "#4db6ac",
-      description: "Packages are loaded onto trucks for delivery",
-    },
-    {
-      name: "Returns Processing",
-      color: "#fff176",
-      description: "Returned items are processed here",
-    },
-  ];
+  const sections = customWarehouseData
+    ? customWarehouseData.sections
+    : [
+        {
+          name: "Receiving Dock",
+          color: "#4dabf5",
+          description: "Packages arrive and are initially processed here",
+        },
+        {
+          name: "Cold Storage",
+          color: "#80deea",
+          description: "Temperature controlled storage for perishable items",
+        },
+        {
+          name: "General Storage",
+          color: "#9ccc65",
+          description: "Main storage area for non-perishable inventory",
+        },
+        {
+          name: "Management Office",
+          color: "#ffb74d",
+          description: "Administrative area for warehouse staff",
+        },
+        {
+          name: "Packaging Station",
+          color: "#ba68c8",
+          description: "Items are prepared for shipping here",
+        },
+        {
+          name: "Quality Control",
+          color: "#f06292",
+          description: "Items are inspected before shipping",
+        },
+        {
+          name: "Shipping Dock",
+          color: "#4db6ac",
+          description: "Packages are loaded onto trucks for delivery",
+        },
+        {
+          name: "Returns Processing",
+          color: "#fff176",
+          description: "Returned items are processed here",
+        },
+      ];
 
   // Check for WebGL support
   useEffect(() => {
@@ -384,7 +430,9 @@ export default function WarehouseComponent({ selectedProduct = null }) {
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Warehouse Layout</h2>
+        <h2 className="text-xl font-bold">
+          {isEditMode ? "Edit Warehouse Layout" : "Warehouse Layout"}
+        </h2>
 
         {/* View toggle buttons */}
         <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
@@ -410,6 +458,18 @@ export default function WarehouseComponent({ selectedProduct = null }) {
           </button>
         </div>
       </div>
+
+      {/* Edit Mode Indicator */}
+      {isEditMode && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-100 rounded-lg text-sm text-gray-700">
+          <p className="font-medium mb-1">Edit Mode Active</p>
+          <ul className="list-disc list-inside text-sm">
+            <li>Modify section positions and sizes in the edit panel above</li>
+            <li>Changes will be reflected in real-time in the 3D view</li>
+            <li>Click "Save Changes" to persist your modifications</li>
+          </ul>
+        </div>
+      )}
 
       {/* User instructions */}
       <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-gray-700">
@@ -448,9 +508,17 @@ export default function WarehouseComponent({ selectedProduct = null }) {
       {/* Main content based on active view */}
       {activeView === "3d" ? (
         renderFallback ? (
-          <Fallback2DView selectedProduct={selectedProduct} />
+          <Fallback2DView
+            selectedProduct={selectedProduct}
+            customWarehouseData={customWarehouseData}
+            isEditMode={isEditMode}
+          />
         ) : renderingChecked ? (
-          <Warehouse3D selectedProduct={selectedProduct} />
+          <Warehouse3D
+            selectedProduct={selectedProduct}
+            customWarehouseData={customWarehouseData}
+            isEditMode={isEditMode}
+          />
         ) : (
           <div className="w-full h-[600px] flex items-center justify-center bg-gray-50 rounded-lg">
             <div className="flex flex-col items-center">
@@ -559,7 +627,7 @@ export default function WarehouseComponent({ selectedProduct = null }) {
         <div className="mt-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-sm font-bold mb-2">Warehouse Sections</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {sections.map((section, index) => (
+            {sections?.map((section, index) => (
               <div
                 key={`legend-${index}`}
                 className={`flex items-center p-1 rounded ${

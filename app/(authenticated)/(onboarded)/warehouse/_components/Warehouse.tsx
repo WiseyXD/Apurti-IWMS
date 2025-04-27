@@ -21,6 +21,7 @@ interface SectionProps {
   color: string;
   description?: string;
   isHighlighted?: boolean;
+  isEditMode?: boolean;
 }
 
 // Types for moving packages
@@ -294,6 +295,7 @@ const WarehouseSection = ({
   color,
   description = "",
   isHighlighted = false,
+  isEditMode = false,
 }: SectionProps) => {
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
@@ -324,46 +326,53 @@ const WarehouseSection = ({
         onClick={() => setActive(!active)}
       >
         <meshBasicMaterial
-          color={hovered ? "#ffffff" : isHighlighted ? "#ffcccc" : color}
+          color={
+            hovered
+              ? "#ffffff"
+              : isHighlighted
+                ? "#ffcccc"
+                : isEditMode
+                  ? "#ffffcc"
+                  : color
+          }
           transparent
-          opacity={0.8}
+          opacity={isEditMode ? 0.6 : 0.8}
         />
       </Box>
 
-      {/* Section name */}
+      {/* Section name with edit mode indicator */}
       <Text
         position={[position[0], position[1] + size[1] / 2 + 0.5, position[2]]}
-        color="black"
+        color={isEditMode ? "#ff8800" : "black"}
         fontSize={0.7}
         anchorX="center"
         anchorY="middle"
       >
         {name}
         {isHighlighted && " *"}
+        {isEditMode && " (Edit)"}
       </Text>
 
-      {/* Show description when active - only when clicked */}
-      {(active || isHighlighted) && description && (
+      {/* Show dimensions in edit mode */}
+      {isEditMode && (active || hovered) && (
         <Text
-          position={[position[0], position[1] + size[1] / 2 + 1.2, position[2]]}
-          color={isHighlighted ? "#ff0000" : "#333333"}
+          position={[position[0], position[1] + size[1] / 2 + 1, position[2]]}
+          color="#ff8800"
           fontSize={0.4}
-          maxWidth={4}
           anchorX="center"
           anchorY="middle"
         >
-          {description}
-          {isHighlighted && " (Product Found)"}
+          {`${size[0]}m x ${size[1]}m x ${size[2]}m`}
         </Text>
       )}
 
-      {/* Add visual indicator when section is highlighted */}
-      {isHighlighted && (
+      {/* Edit mode wireframe */}
+      {isEditMode && (
         <Box
-          args={[size[0] + 0.2, size[1] + 0.2, size[2] + 0.2]}
+          args={[size[0] + 0.1, size[1] + 0.1, size[2] + 0.1]}
           position={position}
         >
-          <meshBasicMaterial color="#ff0000" wireframe={true} />
+          <meshBasicMaterial color="#ff8800" wireframe={true} />
         </Box>
       )}
     </group>
@@ -467,9 +476,13 @@ const CameraController = () => {
 };
 
 // Scene component to hold all 3D elements
-const WarehouseScene = ({ selectedProduct = null }) => {
+const WarehouseScene = ({
+  selectedProduct = null,
+  customWarehouseData = null,
+  isEditMode = false,
+}) => {
   // Define simplified warehouse sections
-  const sections: SectionProps[] = [
+  const defaultSections: SectionProps[] = [
     {
       name: "Receiving Dock",
       position: [0, 1, 13],
@@ -527,6 +540,17 @@ const WarehouseScene = ({ selectedProduct = null }) => {
       isHighlighted: selectedProduct?.location === "Shipping Dock",
     },
   ];
+
+  const sections = customWarehouseData
+    ? customWarehouseData.sections.map((section) => ({
+        name: section.name,
+        position: [section.positionX, section.positionY, section.positionZ],
+        size: [section.sizeX, section.sizeY, section.sizeZ],
+        color: section.color,
+        description: section.description,
+        isHighlighted: selectedProduct?.location === section.name,
+      }))
+    : defaultSections;
 
   // Get the position for a product highlight based on its location
   const getProductHighlightPosition = () => {
@@ -607,6 +631,32 @@ const WarehouseScene = ({ selectedProduct = null }) => {
           />
         ))}
 
+        {/* Don't show products or packages in edit mode */}
+        {!isEditMode && (
+          <>
+            {selectedProduct && getProductHighlightPosition() && (
+              <ProductHighlight
+                position={getProductHighlightPosition()}
+                productId={selectedProduct.id}
+                productName={selectedProduct.name}
+                quantity={selectedProduct.quantity}
+              />
+            )}
+
+            {/* Moving packages */}
+            {packages.map((pkg, index) => (
+              <MovingPackage
+                key={`package-${index}`}
+                position={pkg.position}
+                size={pkg.size}
+                color={pkg.color}
+                speed={pkg.speed}
+                path={pkg.path}
+              />
+            ))}
+          </>
+        )}
+
         {/* Product highlight if a product is selected */}
         {selectedProduct && getProductHighlightPosition() && (
           <ProductHighlight
@@ -683,7 +733,11 @@ const ContextLossHandler = () => {
 };
 
 // Main exported component
-const Warehouse3D = ({ selectedProduct = null }) => {
+const Warehouse3D = ({
+  selectedProduct = null,
+  customWarehouseData = null,
+  isEditMode = false,
+}) => {
   const [isClient, setIsClient] = useState(false);
   const [renderError, setRenderError] = useState(false);
 
@@ -774,11 +828,28 @@ const Warehouse3D = ({ selectedProduct = null }) => {
       >
         <ContextLossHandler />
         <PerspectiveCamera makeDefault position={[0, 20, 20]} fov={45} />
-        <WarehouseScene selectedProduct={selectedProduct} />
+        <WarehouseScene
+          selectedProduct={selectedProduct}
+          customWarehouseData={customWarehouseData}
+          isEditMode={isEditMode}
+        />
       </Canvas>
 
+      {/* Edit Mode Overlay */}
+      {isEditMode && (
+        <div className="absolute top-4 left-4 bg-orange-100 p-3 rounded shadow-md border border-orange-200 max-w-xs">
+          <p className="text-sm font-medium text-orange-800 mb-1">
+            <span className="inline-block w-3 h-3 rounded-full bg-orange-500 mr-1"></span>
+            Edit Mode Active
+          </p>
+          <p className="text-xs text-orange-700">
+            Editing warehouse layout. Sections are highlighted and interactive.
+          </p>
+        </div>
+      )}
+
       {/* Overlay instructions for when a product is selected */}
-      {selectedProduct && (
+      {!isEditMode && selectedProduct && (
         <div className="absolute top-4 left-4 bg-white p-3 rounded shadow-md border border-red-200 max-w-xs">
           <p className="text-sm font-medium text-gray-800 mb-1">
             <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>
