@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -19,15 +18,145 @@ model User {
   email         String          @unique
   emailVerified DateTime?
   image         String?
+  role          UserRole        @default(MANAGER)
   accounts      Account[]
   sessions      Session[]
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
- 
+  warehouses    Warehouse[]     // Warehouses owned/managed by this user
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
  
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+}
+ 
+model Warehouse {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  address     String?
+  
+  // Warehouse dimensions
+  length      Float    // in meters
+  width       Float    // in meters
+  height      Float    // in meters
+  
+  // Warehouse owner/manager
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  sections    WarehouseSection[]
+  products    Product[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model WarehouseSection {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "Cold Storage", "Receiving Dock"
+  type        String   // e.g., "storage", "dock", "office"
+  description String?
+  color       String?  // For 3D visualization
+  
+  // 3D positioning
+  positionX   Float
+  positionY   Float
+  positionZ   Float
+  sizeX       Float
+  sizeY       Float
+  sizeZ       Float
+  
+  // Relations
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  products    Product[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  sku           String?  @unique
+  qrCode        String   @unique
+  category      String
+  quantity      Int      @default(0)
+  
+  // Product dimensions
+  width         Float?
+  height        Float?
+  depth         Float?
+  weight        Float?
+  
+  // Location in warehouse
+  warehouseId   String
+  warehouse     Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  sectionId     String?
+  section       WarehouseSection? @relation(fields: [sectionId], references: [id])
+  
+  // Exact position within section
+  positionX     Float?
+  positionY     Float?
+  positionZ     Float?
+  
+  // Status and tracking
+  status        ProductStatus @default(IN_STOCK)
+  priority      Priority      @default(MEDIUM)
+  lastScanned   DateTime?
+  
+  // Relations
+  scans         ProductScan[]
+  movements     ProductMovement[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+enum ProductStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  LOW_STOCK
+  IN_TRANSIT
+  DAMAGED
+}
+ 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+ 
+model ProductScan {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  scanData    Json?    // Additional data from QR scan
+  scannedBy   String?  // User ID of who scanned
+  action      String?  // What action was taken (e.g., "receive", "move", "ship")
+  
+  createdAt DateTime @default(now())
+}
+ 
+model ProductMovement {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fromLocation  String?  // Could store as JSON or string representation
+  toLocation    String?
+  movedBy       String?  // User ID of who moved the product
+  reason        String?
+  
+  createdAt DateTime @default(now())
+}
+
+// Authentication models remain the same
 model Account {
   userId            String
   type              String
@@ -65,20 +194,4 @@ model VerificationToken {
   expires    DateTime
  
   @@id([identifier, token])
-}
- 
-// Optional for WebAuthn support
-model Authenticator {
-  credentialID         String  @unique
-  userId               String
-  providerAccountId    String
-  credentialPublicKey  String
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
- 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  @@id([userId, credentialID])
 }
