@@ -3,7 +3,7 @@ import Faq from "@/components/landing/faq";
 import Footer from "@/components/landing/footer";
 import Hero from "@/components/landing/hero";
 import { InfiniteMovingCardsDemo } from "@/components/landing/testimonials";
-import { FeaturesSection1 } from "@/components/ui/feature-section1";
+// import { FeaturesSection1 } from "@/components/ui/feature-section1";
 import { FeaturesSection2 } from "@/components/ui/feature-section2";
 import { Separator } from "@/components/ui/separator";
 
@@ -13,10 +13,6 @@ export default function Home() {
       {/* Full screen height and centered content */}
       <div className="w-full bg-zinc-50 dark:bg-zinc-900 text-slate-950">
         <Hero />
-      </div>
-
-      <div className="w-full px-4 md:px-8 lg:px-12 py-8" id="demo">
-        <FeaturesSection1 />
       </div>
 
       <div
