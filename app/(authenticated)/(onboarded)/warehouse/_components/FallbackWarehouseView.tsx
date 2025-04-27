@@ -1,3 +1,4 @@
+// app/(authenticated)/(onboarded)/warehouse/_components/FallbackWarehouseView.tsx
 "use client";
 import React from "react";
 
